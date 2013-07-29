@@ -20,6 +20,7 @@ Exemple in a python console::
    >>> s.send_commands('bash')
    >>> s.enable_logs()
    >>> s.send_commands("df") ## basically this function didn't work and I added a similar function
+   >>> s.send_commands("df")
    >>> print next(s.logs)
    df
    Filesystem           1K-blocks      Used Available Use% Mounted on
@@ -92,10 +93,9 @@ Features
  * screen listing on a ssh tunel
  * download/upload on a ssh tunel
 
-Known issues
--------------
 
 This may not work properly with bpython.
+
 running short commands such as "ls" can not be run on a screen session via ssh; since the terminal ends much faster than listing the result, however it works for heavier commands; for just generating a session, "bash" command is recommended
 
 Roadmap

@@ -9,6 +9,7 @@
 from screenutils.errors import ScreenNotFoundError
 import os
 import commands as cox
+from screenutils.errors import ScreenNotFoundError
 
 try:
     from commands import getoutput
@@ -33,6 +34,7 @@ def tailf(file_):
             yield text
         else:
             yield ""
+
 
 def list_screens():
     """List all the existing screens and build a Screen instance for each
@@ -140,7 +142,6 @@ class Screen(object):
         """detach the screen"""
         self._check_exists()
         system("screen -d " + self.name)
-        
 
     def send_commands_original(self, *commands):
         """send commands to the active gnu-screen"""
@@ -217,7 +218,7 @@ class Screen(object):
         a glossary of the existing screen command in `man screen`"""
         self._check_exists()
         for command in commands:
-			#~ print 'screen -x ' + self.name + ' -X ' + command
+
 			system('screen -x ' + self.name + ' -X ' + command)
 			#~ print(cox.getstatusoutput('screen -x ' + self.name + ' -X ' + command))
 			sleep(0.02)
@@ -365,3 +366,23 @@ def list_screens_ssh(conn):
     """
     a, b = conn.execute("screen -ls | grep -P '\t'")
     return [".".join(l.split(".")[1:]).split("\t")[0] for l in a]
+
+def kill_screen_ssh(conn, name):
+	'''kill a screen session by its name'''
+	cmd = 'screen -S '+name+' -X quit'
+	cmd_out, cmd_err = conn.execute(cmd)
+	return cmd_out, cmd_err
+
+def execute_command_screen_ssh(conn, command, name=''):
+	'''execute cmd in a server under a new screen session'''
+	if len(name) == 0:
+		name = command.split(' ')[0][0:5]
+	
+	screensonssh = list_screens_ssh(conn)
+	if name in screensonssh:
+		name = name+"_"+str(screensonssh.count(name)+1)
+	
+	cmd = 'screen -m -d -S '+name+' '+command
+	cmd_out, cmd_err = conn.execute(cmd)
+	return cmd_out, cmd_err
+
